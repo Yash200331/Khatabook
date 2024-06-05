@@ -4,6 +4,7 @@ const userModel = require("../models/users-model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 console.log(process.env.JWT_SECRET);
+const isLoggedIn = require("../middlewares/login-middleware")
 
 router.get("/", function (req, res) {
   res.render("index");
@@ -16,6 +17,7 @@ router.get("/logout", function (req, res) {
   res.cookie("token", "");
   res.send("logged out");
 });
+
 
 
 router.post("/register", async function (req, res) {
@@ -51,10 +53,10 @@ router.post("/register", async function (req, res) {
   }
 });
 
-router.post('/login',isLoggedIn,  async (req, res) => {
+router.post('/login',  async (req, res) => {
     try{
       let {email, password} = req.body;
-      let user = await userModel.findOne({email})
+      let user = await userModel.findOne({email}).select("+password")
 
       if(!user) return res.send("You Have need to register first");
 
@@ -77,25 +79,6 @@ router.post('/login',isLoggedIn,  async (req, res) => {
     }
 })
 
-function isLoggedIn(req, res, next){
-  if(req.cookies.token === ''){
-    res.redirect('/login');
-  }
-  else{
-    if(process.env.JWT_SECRET){
-      jwt.verify(req.cookies.token,process.env.JWT_SECRET, (err, decode) =>{
-        if(err){
-          res.send(err);
-        }
-        req.user = decode;
-        next(err);
-      })
-    }
-    else{
-      res.send("set your env variables");
 
-    }
-  }
-}
 
 module.exports = router;

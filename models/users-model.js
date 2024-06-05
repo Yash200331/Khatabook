@@ -25,10 +25,12 @@ const userSchema = mongoose.Schema({
   password: {
     type: String,
     required: true,
+    Select:false
   },
-  hisaab: {
-    type: Array,
-  },
+  hisaab:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Hisaab"
+  }]
 });
 
 const User = mongoose.model("User", userSchema);
